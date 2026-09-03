@@ -1,0 +1,40 @@
+:root {
+  /* Canopy green — deep palm-leaf tone, used for structure and ink */
+  --canopy-900: #1e241c;
+  --canopy-700: #2c3d2a;
+  --canopy-500: #3f5a3b;
+
+  /* Cleared soil — the brown of tilled/cleared smallholder land */
+  --soil-600: #6b4a34;
+  --soil-300: #a9855f;
+
+  /* Oil-palm fruit — the actual orange-red of a fresh fruit cluster,
+     used sparingly as the one accent color (reward, primary actions) */
+  --fruit-600: #d9622b;
+  --fruit-700: #b84e1f;
+
+  /* Ledger paper — a warm, slightly aged straw tone for registry/document
+     surfaces, deliberately more saturated than a neutral "AI cream" */
+  --paper-100: #efe6d3;
+  --paper-050: #f6f0e2;
+  --paper-line: #d9cbab;
+
+  /* Verification stamp ink */
+  --stamp-600: #a63d2f;
+
+  --ink: var(--canopy-900);
+  --ink-soft: #4a544a;
+
+  --font-display: "Fraunces", Georgia, serif;
+  --font-body: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+
+  --radius-sm: 4px;
+  --radius-md: 8px;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 16px;
+  --space-4: 24px;
+  --space-5: 40px;
+  --space-6: 64px;
+}
