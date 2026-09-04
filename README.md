@@ -75,7 +75,7 @@ npm run build
 
 ## Verification and chain behavior
 
-The browser sends a 7-frame camera pan to `POST /api/check`. The API accepts at most 12 image frames, each at most 15 MB, and rejects non-image MIME types. `REJECTED` and `FLAGGED` verdicts receive no IPFS CID. The UI both hides the contract action for `FLAGGED` evidence and has a second eligibility guard before any wallet or contract call.
+The browser sends a 7-frame camera pan to `POST /api/check`. The API accepts at most 12 image frames, each at most 15 MB, and rejects non-image MIME types. The current pilot location rules support Indonesia's oil-palm regions and an India-wide field-testing region; replace these coarse boxes with approved plot-level boundaries before a production rollout. `REJECTED` and `FLAGGED` verdicts receive no IPFS CID. The UI both hides the contract action for `FLAGGED` evidence and has a second eligibility guard before any wallet or contract call.
 
 The current Sepolia contract and deployment transaction are documented in [the interface specification](contracts/INTERFACE_SPEC.md). The root workflow at `.github/workflows/test.yml` runs format, build, and Foundry tests inside `contracts/`.
 
@@ -84,3 +84,18 @@ The current Sepolia contract and deployment transaction are documented in [the i
 Before sign-off, the project owner must configure a hosted backend URL, backend secrets (`PINATA_JWT`, durable database path/backup policy), a hosted frontend deployment, and a real Sepolia RPC provider. Then perform and record a live run: camera capture → API → IPFS CID → wallet transaction → dashboard lookup. Record its transaction hash and CID in [the E2E evidence record](docs/E2E_RUN.md).
 
 The legal and operating items required for a signing-ready agreement are tracked in [the handoff checklist](docs/HANDOFF_AND_SIGNOFF.md).
+
+## Container deployment
+
+The repository includes production Dockerfiles and a Compose stack. Copy the deployment template, fill in real hosted URLs and credentials, then start the stack:
+
+```bash
+cp .env.deploy.example .env.deploy
+docker compose --env-file .env.deploy up --build -d
+```
+
+The backend persists SQLite data in the `plotproof-data` Docker volume. Back up that volume or replace the store with a managed database before production use. The frontend is served at port `8080`; the backend is served at port `4000`. For a public deployment, set `VITE_BACKEND_URL` to the HTTPS URL that browsers can reach (usually an API subdomain or reverse-proxy path), not an internal Docker hostname.
+
+### What happens to accepted evidence
+
+Only a `VERIFIED` verdict is accepted. The backend pins the middle live-capture frame to Pinata and returns its CID. The UI then enables **Record on-chain**; after the user approves the Sepolia wallet transaction, the `Farmer` contract stores the location, CID, timestamp, and raw-image keccak256 hash, while increasing the submitter's reward point balance. A `FLAGGED` or `REJECTED` result is never pinned or sent to the contract.

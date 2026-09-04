@@ -7,6 +7,7 @@ import test from "node:test";
 import { createApp, MAX_FILE_SIZE } from "../src/server.js";
 import { DuplicateHashStore } from "../src/storage/sqlite.js";
 import { buildVerdict } from "../src/checks/verdict.js";
+import { checkExifConsistency } from "../src/checks/exif.js";
 
 const image = new Blob([
   Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQIHWP4z8DwHwAFgAI/ScLq5QAAAABJRU5ErkJggg==", "base64"),
@@ -143,4 +144,10 @@ test("FLAGGED evidence is not pinned and has no on-chain CID", async () => {
     assert.equal(body.ipfsCID, null);
     assert.equal(uploads, 0);
   });
+});
+
+test("canvas-captured images without EXIF are not treated as tampered evidence", async () => {
+  const result = await checkExifConsistency(Buffer.from(await image.arrayBuffer()));
+  assert.equal(result.pass, true);
+  assert.equal(result.metadataUnavailable, true);
 });

@@ -64,7 +64,12 @@ async function runChecks({ frames, lat, lon, gpsAccuracy, captureTimestamp, hash
     gpsAccuracy: gpsAccuracyResult,
     duplicate: hashStore.checkDuplicate(dHash),
     timestampFreshness: checkTimestampFreshness(captureTimestamp),
-    exif: { pass: exif.pass, reason: exif.flags.join("; ") || "EXIF consistent", flags: exif.flags },
+    exif: {
+      pass: exif.pass,
+      reason: exif.flags.join("; ") || "EXIF consistent",
+      flags: exif.flags,
+      metadataUnavailable: exif.metadataUnavailable || false,
+    },
     glare,
     bezel,
     moire,

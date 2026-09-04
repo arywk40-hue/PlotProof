@@ -1,0 +1,28 @@
+services:
+  backend:
+    build: ./backend
+    environment:
+      PINATA_JWT: ${PINATA_JWT:?Set PINATA_JWT in .env before deployment}
+      PLOTPROOF_DB_PATH: /data/plotproof.sqlite
+      PORT: 4000
+    volumes:
+      - plotproof-data:/data
+    ports:
+      - "4000:4000"
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_BACKEND_URL: ${VITE_BACKEND_URL:?Set VITE_BACKEND_URL in .env before deployment}
+        VITE_CONTRACT_ADDRESS: ${VITE_CONTRACT_ADDRESS:?Set VITE_CONTRACT_ADDRESS in .env before deployment}
+        VITE_SEPOLIA_RPC_URL: ${VITE_SEPOLIA_RPC_URL:?Set VITE_SEPOLIA_RPC_URL in .env before deployment}
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+volumes:
+  plotproof-data:

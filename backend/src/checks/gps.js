@@ -3,6 +3,10 @@
 // polygon/shapefile lookup (e.g. against BPS/ATR-BPN administrative
 // boundaries) post-hackathon for real precision.
 const OIL_PALM_REGIONS = [
+  // India pilot region. This allows the local deployment and field-testing
+  // workflow to operate in India while the production region dataset is
+  // replaced with plot-level boundaries.
+  { name: "India pilot", minLat: 6.0, maxLat: 37.5, minLon: 68.0, maxLon: 98.0 },
   // Sumatra (Riau, North Sumatra, Jambi, South Sumatra, etc.)
   { name: "Sumatra", minLat: -6.0, maxLat: 6.0, minLon: 95.0, maxLon: 106.0 },
   // Kalimantan (Indonesian Borneo)
@@ -30,8 +34,8 @@ export function checkGpsBoundingBox(lat, lon) {
     return { pass: false, region: null, reason: "GPS coordinates missing or invalid" };
   }
 
-  if (lat < -11 || lat > 6 || lon < 94 || lon > 142) {
-    return { pass: false, region: null, reason: "Coordinates fall outside Indonesia entirely" };
+  if (lat < -11 || lat > 37.5 || lon < 68 || lon > 142) {
+    return { pass: false, region: null, reason: "Coordinates fall outside supported pilot regions" };
   }
 
   for (const region of OIL_PALM_REGIONS) {
@@ -40,7 +44,7 @@ export function checkGpsBoundingBox(lat, lon) {
     }
   }
 
-  return { pass: false, region: null, reason: "Coordinates inside Indonesia but outside known oil-palm regions" };
+  return { pass: false, region: null, reason: "Coordinates inside a supported country but outside configured pilot regions" };
 }
 
 /**

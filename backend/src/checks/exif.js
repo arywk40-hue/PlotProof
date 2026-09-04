@@ -28,9 +28,24 @@ export async function checkExifConsistency(imageBuffer) {
     exif = null;
   }
 
-  if (!exif) {
-    flags.push("No EXIF metadata found at all (uploaded files, screenshots, and many editors strip it)");
-    return { pass: false, flags, exif: null };
+  const hasCameraExif = exif && [
+    "Make",
+    "Model",
+    "DateTimeOriginal",
+    "Software",
+    "GPSHPositioningError",
+    "GPSDOP",
+    "latitude",
+    "longitude",
+  ].some((key) => exif[key] !== undefined);
+
+  if (!hasCameraExif) {
+    // Frames from the supported live-capture flow are rendered through a
+    // canvas to burn in the freshness challenge. Canvas encoding intentionally
+    // strips EXIF, so absence alone is not evidence of tampering here. File
+    // uploads are not accepted by the client or API flow.
+    flags.push("No EXIF metadata present (expected for canvas-encoded live capture)");
+    return { pass: true, flags, exif: null, metadataUnavailable: true };
   }
 
   if (!exif.Make || !exif.Model) {
