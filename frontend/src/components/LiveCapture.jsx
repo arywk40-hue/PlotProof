@@ -157,8 +157,8 @@ export default function LiveCapture({ onCaptured, onError }) {
           }}
         >
           <p style={{ color: "#fff", fontSize: 13, marginBottom: 12, maxWidth: "none" }}>
-            Point the camera at your plot. When you tap start, pan slowly left to right for 3 seconds — this proves
-            it's a real field, not a photo of a photo.
+            Point the camera at your plot. When you tap start, move sideways a few steps while panning slowly for 3
+            seconds. Keep nearby plants and distant scenery in view — this proves real depth, not a photo of a photo.
           </p>
           <button className="btn btn-primary" style={{ width: "100%" }} onClick={startPanCapture}>
             Start pan capture

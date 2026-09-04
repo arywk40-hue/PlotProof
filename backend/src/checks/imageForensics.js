@@ -143,6 +143,31 @@ export async function checkMoirePeriodicity(imageBuffer) {
   const startX = Math.floor((width - patchSize) / 2);
   const startY = Math.floor((height - patchSize) / 2);
 
+  // Uniform sky, walls, fog, or dark scenes have very high autocorrelation at
+  // every lag, but that is not a repeating screen grid. Moire requires both
+  // periodicity and enough local contrast to reveal a pattern.
+  let sum = 0;
+  let sumSquares = 0;
+  const pixelCount = patchSize * patchSize;
+  for (let y = startY; y < startY + patchSize; y++) {
+    for (let x = startX; x < startX + patchSize; x++) {
+      const value = pixels[y * width + x];
+      sum += value;
+      sumSquares += value * value;
+    }
+  }
+  const mean = sum / pixelCount;
+  const localContrast = Math.sqrt(Math.max(0, sumSquares / pixelCount - mean * mean));
+  if (localContrast < 12) {
+    return {
+      pass: true,
+      reason: "Frame has too little local texture to infer a screen-replay pattern",
+      localContrast,
+      maxAutocorr: null,
+      peakLag: null,
+    };
+  }
+
   let maxAutocorr = 0;
   let peakLag = 0;
 
@@ -175,5 +200,6 @@ export async function checkMoirePeriodicity(imageBuffer) {
       : `No strong periodic pattern detected (peak similarity ${(maxAutocorr * 100).toFixed(1)}%)`,
     maxAutocorr,
     peakLag,
+    localContrast,
   };
 }

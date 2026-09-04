@@ -82,8 +82,8 @@ export default function CapturePage() {
         <>
           <h1 style={{ fontSize: 28 }}>Submit your plot</h1>
           <p>
-            You'll use your camera directly — no photo uploads. Pan slowly across your field for a few seconds so we
-            can confirm it's a real, current view of your land.
+            You'll use your camera directly — no photo uploads. Move sideways while panning across your field for a
+            few seconds so we can confirm it's a real, current view of your land.
           </p>
           <button className="btn btn-primary" onClick={() => setStep(STEP.CAPTURE)}>
             Open camera

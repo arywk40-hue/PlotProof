@@ -20,7 +20,7 @@ export default function HomePage() {
       <div className="ledger-card" style={{ marginTop: 56 }}>
         <h3 style={{ fontSize: 18 }}>How a submission is verified</h3>
         <ol style={{ color: "var(--ink-soft)", paddingLeft: 20, lineHeight: 1.8 }}>
-          <li>Open the camera in-app and pan slowly across the plot — no file uploads accepted.</li>
+          <li>Open the camera in-app and move sideways while panning across the plot — no file uploads accepted.</li>
           <li>Location, time, and a burst of frames are captured automatically.</li>
           <li>Automated checks screen for reused images, spoofed GPS, and screen-replay attempts.</li>
           <li>A passing record is hashed and written to the Farmer smart contract on Sepolia.</li>
