@@ -1,66 +1,13 @@
-## Foundry
+# PlotProof contracts
 
-**Foundry is a blazing fast, portable and modular toolkit for Ethereum application development written in Rust.**
+This Foundry project contains the `Farmer` contract used by PlotProof. It is deployed on Ethereum Sepolia; see [INTERFACE_SPEC.md](INTERFACE_SPEC.md) for the deployed address, transaction, ABI, and frontend encoding rules.
 
-Foundry consists of:
+## Commands
 
-- **Forge**: Ethereum testing framework (like Truffle, Hardhat and DappTools).
-- **Cast**: Swiss army knife for interacting with EVM smart contracts, sending transactions and getting chain data.
-- **Anvil**: Local Ethereum node, akin to Ganache, Hardhat Network.
-- **Chisel**: Fast, utilitarian, and verbose solidity REPL.
-
-## Documentation
-
-https://book.getfoundry.sh/
-
-## Usage
-
-### Build
-
-```shell
-$ forge build
+```bash
+forge fmt --check
+forge build --sizes
+forge test -vvv
 ```
 
-### Test
-
-```shell
-$ forge test
-```
-
-### Format
-
-```shell
-$ forge fmt
-```
-
-### Gas Snapshots
-
-```shell
-$ forge snapshot
-```
-
-### Anvil
-
-```shell
-$ anvil
-```
-
-### Deploy
-
-```shell
-$ forge script script/Counter.s.sol:CounterScript --rpc-url <your_rpc_url> --private-key <your_private_key>
-```
-
-### Cast
-
-```shell
-$ cast <subcommand>
-```
-
-### Help
-
-```shell
-$ forge --help
-$ anvil --help
-$ cast --help
-```
+The root GitHub Actions workflow runs these commands with `contracts/` as its working directory. The local machine needs Foundry installed to run them manually.

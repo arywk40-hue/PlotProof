@@ -4,9 +4,14 @@
   "description": "PlotProof anti-spoof plausibility check service",
   "main": "src/server.js",
   "type": "module",
+  "engines": {
+    "node": ">=22.5.0"
+  },
   "scripts": {
     "start": "node src/server.js",
-    "dev": "node --watch src/server.js"
+    "dev": "node --watch src/server.js",
+    "test": "node --test",
+    "test:integration": "node --test test/ipfs.integration.test.js"
   },
   "dependencies": {
     "cors": "^2.8.5",

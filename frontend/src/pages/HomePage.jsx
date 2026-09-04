@@ -8,7 +8,7 @@ export default function HomePage() {
         Satellites lose track of small, mixed-crop plots. PlotProof lets a smallholder verify their own land with a
         phone — a live-captured photo, checked for tampering, permanently recorded on-chain, rewarded on the spot.
       </p>
-      <div style={{ display: "flex", gap: 16, marginTop: 32 }}>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 16, marginTop: 32 }}>
         <Link to="/capture" className="btn btn-primary">
           Submit a plot
         </Link>
@@ -23,7 +23,7 @@ export default function HomePage() {
           <li>Open the camera in-app and pan slowly across the plot — no file uploads accepted.</li>
           <li>Location, time, and a burst of frames are captured automatically.</li>
           <li>Automated checks screen for reused images, spoofed GPS, and screen-replay attempts.</li>
-          <li>A passing record is hashed and written to the PlotRegistry smart contract.</li>
+          <li>A passing record is hashed and written to the Farmer smart contract on Sepolia.</li>
           <li>A reward is credited to the submitting wallet immediately.</li>
         </ol>
       </div>

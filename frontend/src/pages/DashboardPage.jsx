@@ -31,7 +31,7 @@ export default function DashboardPage() {
       <h1 style={{ fontSize: 28 }}>Look up a plot record</h1>
       <p>Enter a plot's record hash (from a QR code or receipt) to view its verified, on-chain history.</p>
 
-      <form onSubmit={handleLookup} style={{ display: "flex", gap: 12, margin: "24px 0" }}>
+      <form onSubmit={handleLookup} style={{ display: "flex", flexWrap: "wrap", gap: 12, margin: "24px 0" }}>
         <input
           type="text"
           value={plotId}

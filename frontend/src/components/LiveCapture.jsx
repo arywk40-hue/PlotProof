@@ -72,43 +72,52 @@ export default function LiveCapture({ onCaptured, onError }) {
     ctx.fillStyle = "#ffffff";
     ctx.fillText(label, pad, canvas.height - pad);
 
-    return new Promise((resolve) => canvas.toBlob((blob) => resolve(blob), "image/jpeg", 0.92));
+    return new Promise((resolve, reject) => canvas.toBlob(
+      (blob) => blob ? resolve(blob) : reject(new Error("Could not encode the camera frame.")),
+      "image/jpeg",
+      0.92
+    ));
   }
 
   async function startPanCapture() {
     setCapturing(true);
     setProgress(0);
-    const frames = [];
-    const interval = BURST_DURATION_MS / (BURST_FRAME_COUNT - 1);
+    try {
+      const frames = [];
+      const interval = BURST_DURATION_MS / (BURST_FRAME_COUNT - 1);
 
-    for (let i = 0; i < BURST_FRAME_COUNT; i++) {
-      const blob = await drawFrameWithOverlay();
-      frames.push(blob);
-      setProgress((i + 1) / BURST_FRAME_COUNT);
-      if (i < BURST_FRAME_COUNT - 1) {
-        await new Promise((r) => setTimeout(r, interval));
+      for (let i = 0; i < BURST_FRAME_COUNT; i++) {
+        const blob = await drawFrameWithOverlay();
+        frames.push(blob);
+        setProgress((i + 1) / BURST_FRAME_COUNT);
+        if (i < BURST_FRAME_COUNT - 1) {
+          await new Promise((r) => setTimeout(r, interval));
+        }
       }
+
+      const captureTimestamp = Date.now();
+
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          streamRef.current?.getTracks().forEach((t) => t.stop());
+          onCaptured({
+            frames,
+            lat: position.coords.latitude,
+            lon: position.coords.longitude,
+            gpsAccuracy: position.coords.accuracy,
+            captureTimestamp,
+          });
+        },
+        (err) => {
+          setCapturing(false);
+          onError?.("Location access was denied or unavailable: " + err.message);
+        },
+        { enableHighAccuracy: true, timeout: 10000 }
+      );
+    } catch (error) {
+      setCapturing(false);
+      onError?.(error.message || "Camera capture failed.");
     }
-
-    const captureTimestamp = Date.now();
-
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        streamRef.current?.getTracks().forEach((t) => t.stop());
-        onCaptured({
-          frames,
-          lat: position.coords.latitude,
-          lon: position.coords.longitude,
-          gpsAccuracy: position.coords.accuracy,
-          captureTimestamp,
-        });
-      },
-      (err) => {
-        setCapturing(false);
-        onError?.("Location access was denied or unavailable: " + err.message);
-      },
-      { enableHighAccuracy: true, timeout: 10000 }
-    );
   }
 
   return (
