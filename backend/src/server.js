@@ -74,6 +74,9 @@ async function runChecks({ frames, lat, lon, gpsAccuracy, captureTimestamp, hash
 }
 
 function parseRequiredNumber(value, label) {
+  if (typeof value !== "string" || value.trim() === "") {
+    throw Object.assign(new Error(`${label} is required and must be a number`), { statusCode: 400 });
+  }
   const number = Number(value);
   if (!Number.isFinite(number)) {
     throw Object.assign(new Error(`${label} is required and must be a number`), { statusCode: 400 });
@@ -145,7 +148,7 @@ export function createApp({ hashStore = new DuplicateHashStore(), evaluate = run
   app.get("/api/health", (_req, res) => res.json({ status: "ok" }));
   app.use((error, _req, res, _next) => {
     if (error instanceof multer.MulterError) {
-      const status = error.code === "LIMIT_FILE_SIZE" || error.code === "LIMIT_FILE_COUNT" ? 413 : 400;
+      const status = ["LIMIT_FILE_SIZE", "LIMIT_FILE_COUNT", "LIMIT_UNEXPECTED_FILE"].includes(error.code) ? 413 : 400;
       return res.status(status).json({ error: error.message });
     }
     const status = error.statusCode || 500;

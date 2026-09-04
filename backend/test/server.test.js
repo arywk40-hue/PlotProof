@@ -56,6 +56,22 @@ test("POST /api/check rejects an empty submission", async () => {
   });
 });
 
+test("POST /api/check rejects missing or blank numeric form fields", async () => {
+  const hashStore = new DuplicateHashStore(":memory:");
+  const evaluate = async () => {
+    throw new Error("numeric validation should run before evidence evaluation");
+  };
+  await withServer({ hashStore, evaluate }, async (baseUrl) => {
+    for (const [field, value] of [["lat", ""], ["lon", "   "], ["captureTimestamp", ""]]) {
+      const response = await fetch(`${baseUrl}/api/check`, {
+        method: "POST",
+        body: submission({ [field]: value }),
+      });
+      assert.equal(response.status, 400, `${field} should reject ${JSON.stringify(value)}`);
+    }
+  });
+});
+
 test("POST /api/check rejects non-image files, oversized files, and excessive frame counts", async () => {
   const hashStore = new DuplicateHashStore(":memory:");
   await withServer({ hashStore }, async (baseUrl) => {
