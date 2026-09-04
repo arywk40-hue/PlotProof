@@ -60,7 +60,7 @@ export default function VerdictCard({ verdict }) {
 
       {verdict.photoHash && (
         <div style={{ marginTop: 16 }}>
-          <span className="field-label">Record hash</span>
+          <span className="field-label">Server reference hash</span>
           <span className="mono">{verdict.photoHash}</span>
         </div>
       )}

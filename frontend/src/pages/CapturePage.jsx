@@ -20,6 +20,7 @@ export default function CapturePage() {
   const [verdict, setVerdict] = useState(null);
   const [capturedData, setCapturedData] = useState(null);
   const [txReceipt, setTxReceipt] = useState(null);
+  const [chainPhotoHash, setChainPhotoHash] = useState(null);
 
   async function handleCaptured({ frames, lat, lon, gpsAccuracy, captureTimestamp }) {
     setCapturedData({ frames, lat, lon });
@@ -55,6 +56,7 @@ export default function CapturePage() {
         // Ethereum-native, raw-byte keccak256 anchor.
         const middleFrame = capturedData.frames[Math.floor(capturedData.frames.length / 2)];
         const photoHash = await keccak256OfImage(middleFrame);
+        setChainPhotoHash(photoHash);
         return submitPlotOnChain(signer, photoHash, capturedData.lat, capturedData.lon, verdict.ipfsCID);
       });
       setTxReceipt(receipt);
@@ -70,6 +72,7 @@ export default function CapturePage() {
     setVerdict(null);
     setCapturedData(null);
     setTxReceipt(null);
+    setChainPhotoHash(null);
     setError(null);
   }
 
@@ -133,6 +136,12 @@ export default function CapturePage() {
           <p>Your plot record is now permanent and your reward has been credited.</p>
           <span className="field-label">Transaction</span>
           <span className="mono">{txReceipt.hash}</span>
+          {chainPhotoHash && (
+            <>
+              <span className="field-label" style={{ display: "block", marginTop: 16 }}>On-chain record hash</span>
+              <span className="mono">{chainPhotoHash}</span>
+            </>
+          )}
           <div style={{ marginTop: 20 }}>
             <button className="btn btn-secondary" onClick={reset}>
               Submit another plot
