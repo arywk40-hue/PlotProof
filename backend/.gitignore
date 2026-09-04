@@ -8,3 +8,4 @@ contracts/broadcast/
 
 frontend/dist/
 backend/dist/
+data/

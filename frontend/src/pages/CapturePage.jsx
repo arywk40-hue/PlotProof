@@ -3,6 +3,7 @@ import LiveCapture from "../components/LiveCapture.jsx";
 import VerdictCard from "../components/VerdictCard.jsx";
 import { BACKEND_URL } from "../lib/config.js";
 import { connectWallet, submitPlotOnChain, keccak256OfImage } from "../lib/chain.js";
+import { submitVerifiedEvidence } from "../lib/submission.js";
 
 const STEP = {
   INTRO: "intro",
@@ -48,12 +49,14 @@ export default function CapturePage() {
     setStep(STEP.SUBMITTING);
     setError(null);
     try {
-      const { signer } = await connectWallet();
-      // Use the middle frame — same selection logic the backend uses as
-      // the sharpest, least-motion-blurred frame — for the anchored hash.
-      const middleFrame = capturedData.frames[Math.floor(capturedData.frames.length / 2)];
-      const photoHash = await keccak256OfImage(middleFrame);
-      const receipt = await submitPlotOnChain(signer, photoHash, capturedData.lat, capturedData.lon,verdict.ipfsCID);
+      const receipt = await submitVerifiedEvidence(verdict, async () => {
+        const { signer } = await connectWallet();
+        // The middle frame is the same server-side selection and becomes the
+        // Ethereum-native, raw-byte keccak256 anchor.
+        const middleFrame = capturedData.frames[Math.floor(capturedData.frames.length / 2)];
+        const photoHash = await keccak256OfImage(middleFrame);
+        return submitPlotOnChain(signer, photoHash, capturedData.lat, capturedData.lon, verdict.ipfsCID);
+      });
       setTxReceipt(receipt);
       setStep(STEP.DONE);
     } catch (err) {
@@ -86,7 +89,13 @@ export default function CapturePage() {
       )}
 
       {step === STEP.CAPTURE && (
-        <LiveCapture onCaptured={handleCaptured} onError={(msg) => setError(msg)} />
+        <LiveCapture
+          onCaptured={handleCaptured}
+          onError={(msg) => {
+            setError(msg);
+            setStep(STEP.INTRO);
+          }}
+        />
       )}
 
       {step === STEP.CHECKING && (
@@ -99,11 +108,12 @@ export default function CapturePage() {
         <>
           <VerdictCard verdict={verdict} />
           <div style={{ display: "flex", gap: 12, marginTop: 20 }}>
-            {(verdict.verdict === "VERIFIED" || verdict.verdict === "FLAGGED") && (
+            {verdict.verdict === "VERIFIED" && (
               <button className="btn btn-primary" onClick={handleSubmitOnChain}>
-                {verdict.verdict === "FLAGGED" ? "Submit for review anyway" : "Record on-chain"}
+                Record on-chain
               </button>
             )}
+            {verdict.verdict === "FLAGGED" && <p style={{ margin: 0 }}>This evidence is queued for manual review and cannot be recorded on-chain.</p>}
             <button className="btn btn-secondary" onClick={reset}>
               Try again
             </button>
