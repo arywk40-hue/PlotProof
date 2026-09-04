@@ -5,7 +5,6 @@ import {Test} from "forge-std/Test.sol";
 import {Farmer} from "../src/Farmer.sol";
 
 contract FarmerTest is Test {
-
     Farmer farmer;
 
     address user1 = address(0x1);
@@ -20,27 +19,14 @@ contract FarmerTest is Test {
         farmer = new Farmer();
     }
 
-
     // Test 1: Submit a plot successfully
     function testSubmitPlot() public {
-
         vm.prank(user1);
 
-        farmer.submitPlot(
-            photoHash,
-            31000000,
-            77000000,
-            ipfsCID
-        );
+        farmer.submitPlot(photoHash, 31000000, 77000000, ipfsCID);
 
-        (
-            address submitter,
-            int256 lat,
-            int256 lon,
-            string memory storedCID,
-            uint256 timestamp,
-            bool exists
-        ) = farmer.getPlot(photoHash);
+        (address submitter, int256 lat, int256 lon, string memory storedCID, uint256 timestamp, bool exists) =
+            farmer.getPlot(photoHash);
 
         assertEq(submitter, user1);
         assertEq(lat, 31000000);
@@ -50,48 +36,27 @@ contract FarmerTest is Test {
         assertTrue(exists);
     }
 
-
     // Test 2: Reward points increase
     function testRewardPoints() public {
-
         vm.prank(user1);
 
-        farmer.submitPlot(
-            photoHash,
-            31000000,
-            77000000,
-            ipfsCID
-        );
+        farmer.submitPlot(photoHash, 31000000, 77000000, ipfsCID);
 
         uint256 points = farmer.rewardpts(user1);
 
         assertEq(points, 1);
     }
 
-
     // Test 3: Cannot submit same photo twice
     function testDuplicatePlotFails() public {
-
         vm.prank(user1);
 
-        farmer.submitPlot(
-            photoHash,
-            31000000,
-            77000000,
-            ipfsCID
-        );
+        farmer.submitPlot(photoHash, 31000000, 77000000, ipfsCID);
 
         vm.prank(user2);
 
-        vm.expectRevert(
-            "You have already submitted the plot"
-        );
+        vm.expectRevert("You have already submitted the plot");
 
-        farmer.submitPlot(
-            photoHash,
-            32000000,
-            78000000,
-            "QmAnotherCID"
-        );
+        farmer.submitPlot(photoHash, 32000000, 78000000, "QmAnotherCID");
     }
 }
