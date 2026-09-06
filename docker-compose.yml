@@ -2,6 +2,7 @@ services:
   backend:
     build: ./backend
     environment:
+      FRONTEND_ORIGIN: ${FRONTEND_ORIGIN:-http://localhost:5173}
       PINATA_JWT: ${PINATA_JWT:?Set PINATA_JWT in .env before deployment}
       PLOTPROOF_DB_PATH: /data/plotproof.sqlite
       PORT: 4000

@@ -21,6 +21,8 @@ export default function CapturePage() {
   const [capturedData, setCapturedData] = useState(null);
   const [txReceipt, setTxReceipt] = useState(null);
   const [chainPhotoHash, setChainPhotoHash] = useState(null);
+  const [chainStatus, setChainStatus] = useState("");
+  const [pendingHash, setPendingHash] = useState(null);
 
   async function handleCaptured({ frames, lat, lon, gpsAccuracy, captureTimestamp }) {
     setCapturedData({ frames, lat, lon });
@@ -48,6 +50,7 @@ export default function CapturePage() {
 
   async function handleSubmitOnChain() {
     setStep(STEP.SUBMITTING);
+    setChainStatus("Confirm the transaction in your wallet…");
     setError(null);
     try {
       const receipt = await submitVerifiedEvidence(verdict, async () => {
@@ -57,11 +60,12 @@ export default function CapturePage() {
         const middleFrame = capturedData.frames[Math.floor(capturedData.frames.length / 2)];
         const photoHash = await keccak256OfImage(middleFrame);
         setChainPhotoHash(photoHash);
-        return submitPlotOnChain(signer, photoHash, capturedData.lat, capturedData.lon, verdict.ipfsCID);
+        return submitPlotOnChain(signer, photoHash, capturedData.lat, capturedData.lon, verdict.ipfsCID, setChainStatus);
       });
       setTxReceipt(receipt);
       setStep(STEP.DONE);
     } catch (err) {
+      if (err.transactionHash) setPendingHash(err.transactionHash);
       setError(err.message);
       setStep(STEP.RESULT);
     }
@@ -73,6 +77,7 @@ export default function CapturePage() {
     setCapturedData(null);
     setTxReceipt(null);
     setChainPhotoHash(null);
+    setPendingHash(null);
     setError(null);
   }
 
@@ -112,7 +117,7 @@ export default function CapturePage() {
           <VerdictCard verdict={verdict} />
           <div style={{ display: "flex", gap: 12, marginTop: 20 }}>
             {verdict.verdict === "VERIFIED" && (
-              <button className="btn btn-primary" onClick={handleSubmitOnChain}>
+              <button className="btn btn-primary" disabled={Boolean(pendingHash)} onClick={handleSubmitOnChain}>
                 Record on-chain
               </button>
             )}
@@ -126,7 +131,7 @@ export default function CapturePage() {
 
       {step === STEP.SUBMITTING && (
         <div className="ledger-card" style={{ textAlign: "center" }}>
-          <p>Confirm the transaction in your wallet…</p>
+          <p role="status">{chainStatus}</p>
         </div>
       )}
 

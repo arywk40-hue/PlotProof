@@ -85,6 +85,26 @@ Before sign-off, the project owner must configure a hosted backend URL, backend 
 
 The legal and operating items required for a signing-ready agreement are tracked in [the handoff checklist](docs/HANDOFF_AND_SIGNOFF.md).
 
+## Render backend and Vercel frontend
+
+Import the root `render.yaml` Blueprint and enter `PINATA_JWT` and
+`FRONTEND_ORIGIN` manually in Render. Use the exact Vercel origin without a
+trailing slash. Local development defaults to `http://localhost:5173`;
+if opening Vite at `http://127.0.0.1:5173`, set that exact origin instead.
+The Blueprint includes a persistent disk for SQLite and therefore needs a paid
+Render service. It pins Node 22.5.0 and enables its experimental SQLite flag.
+No service has been provisioned by adding this file.
+
+Set Vercel's three `VITE_*` values in its dashboard, including the HTTPS Render
+backend URL, and rebuild the frontend. Before the demo, open
+`https://YOUR-BACKEND/health`. A 200 response confirms the process is awake;
+it does not test Pinata or database readiness.
+
+RPC reads retry transient rate-limit/timeouts three times (1s, 2s, 4s).
+Confirmation waits up to three minutes per attempt, with one transient retry.
+The UI displays retry progress and preserves the transaction hash on failure.
+Only reads/confirmation are retried; sending a transaction is attempted once.
+
 ## Container deployment
 
 The repository includes production Dockerfiles and a Compose stack. Copy the deployment template, fill in real hosted URLs and credentials, then start the stack:

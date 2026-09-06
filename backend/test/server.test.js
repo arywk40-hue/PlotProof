@@ -49,6 +49,21 @@ test("GET /api/health reports service readiness", async () => {
   });
 });
 
+test("health and CORS support only the configured browser origin", async () => {
+  const hashStore = new DuplicateHashStore(":memory:");
+  await withServer({ hashStore, frontendOrigin: "https://plotproof.example" }, async (baseUrl) => {
+    for (const origin of ["https://plotproof.example", "https://untrusted.example"]) {
+      const response = await fetch(`${baseUrl}/health`, { headers: { Origin: origin } });
+      assert.equal(response.status, 200);
+      assert.deepEqual(await response.json(), { status: "ok" });
+      assert.equal(response.headers.get("access-control-allow-origin"), "https://plotproof.example");
+    }
+    const preflight = await fetch(`${baseUrl}/api/check`, { method: "OPTIONS",
+      headers: { Origin: "https://plotproof.example", "Access-Control-Request-Method": "POST" } });
+    assert.equal(preflight.status, 204);
+  });
+});
+
 test("POST /api/check rejects an empty submission", async () => {
   const hashStore = new DuplicateHashStore(":memory:");
   await withServer({ hashStore }, async (baseUrl) => {

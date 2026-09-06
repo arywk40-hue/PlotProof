@@ -1,5 +1,6 @@
 import { ethers } from "ethers";
 import { CONTRACT_ADDRESS, CONTRACT_ABI, SEPOLIA_CHAIN } from "./config.js";
+import { retryRpc, waitForConfirmation } from "./rpcRetry.js";
 
 export async function connectWallet() {
   if (!window.ethereum) {
@@ -24,24 +25,31 @@ export async function connectWallet() {
 }
 
 export function getReadOnlyContract() {
-  const provider = new ethers.JsonRpcProvider(SEPOLIA_CHAIN.rpcUrls[0]);
+  const request = new ethers.FetchRequest(SEPOLIA_CHAIN.rpcUrls[0]);
+  request.timeout = 20000;
+  const provider = new ethers.JsonRpcProvider(request);
   return new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, provider);
 }
 
-export async function submitPlotOnChain(signer, photoHash, lat, lon,ipfsCID) {
+export async function submitPlotOnChain(signer, photoHash, lat, lon,ipfsCID, onStatus) {
   const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
   // Contract expects fixed-point ints (see INTERFACE_SPEC.md) — scale by 1e6
   // to preserve ~0.11m precision while staying integer-only on-chain.
   const latFixed = Math.round(lat * 1e6);
   const lonFixed = Math.round(lon * 1e6);
   const tx = await contract.submitPlot(photoHash, latFixed, lonFixed,ipfsCID);
-  const receipt = await tx.wait();
+  const receipt = await waitForConfirmation(tx, onStatus);
   return receipt;
 }
 
-export async function fetchPlot(photoHash) {
+export async function fetchPlot(photoHash, onStatus) {
   const contract = getReadOnlyContract();
-  const result = await contract.getPlot(photoHash);
+  let result;
+  try {
+    result = await retryRpc(() => contract.getPlot(photoHash), { onStatus });
+  } finally {
+    contract.runner.destroy();
+  }
 
   return {
     submitter: result[0],
