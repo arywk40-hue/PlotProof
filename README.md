@@ -91,8 +91,13 @@ Import the root `render.yaml` Blueprint and enter `PINATA_JWT` and
 `FRONTEND_ORIGIN` manually in Render. Use the exact Vercel origin without a
 trailing slash. Local development defaults to `http://localhost:5173`;
 if opening Vite at `http://127.0.0.1:5173`, set that exact origin instead.
-The Blueprint includes a persistent disk for SQLite and therefore needs a paid
-Render service. It pins Node 22.5.0 and enables its experimental SQLite flag.
+The Blueprint uses Render's free plan for the demo, without a persistent disk.
+SQLite lives at `/tmp/plotproof.sqlite`: duplicate-image history is lost on
+restart, redeploy, or idle sleep. Existing on-chain records are unaffected.
+The free service sleeps after 15 minutes of inactivity; ping `/health` before
+the demo and allow time for it to wake up. This setup does not satisfy the
+production requirement for persistent duplicate tracking.
+It pins Node 22.5.0 and enables its experimental SQLite flag.
 No service has been provisioned by adding this file.
 
 Set Vercel's three `VITE_*` values in its dashboard, including the HTTPS Render

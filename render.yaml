@@ -2,14 +2,11 @@ services:
   - type: web
     name: plotproof-backend
     runtime: node
+    plan: free
     rootDir: backend
     buildCommand: npm install
     startCommand: npm start
     healthCheckPath: /health
-    disk:
-      name: plotproof-data
-      mountPath: /var/data
-      sizeGB: 1
     envVars:
       - key: NODE_VERSION
         value: 22.5.0
@@ -20,4 +17,5 @@ services:
       - key: FRONTEND_ORIGIN
         sync: false
       - key: PLOTPROOF_DB_PATH
-        value: /var/data/plotproof.sqlite
+        # Demo only: Render clears this file on restart, redeploy, or sleep.
+        value: /tmp/plotproof.sqlite
