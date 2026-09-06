@@ -6,12 +6,12 @@ test("rate limits back off and show retry progress before succeeding", async () 
   let calls = 0;
   const delays = [], statuses = [];
   const result = await retryRpc(async () => {
-    if (++calls < 3) throw { info: { response: { statusCode: 429 } } };
+    if (++calls < 2) throw { info: { response: { statusCode: 429 } } };
     return "record";
   }, { sleep: async (ms) => delays.push(ms), onStatus: (s) => statuses.push(s) });
   assert.equal(result, "record");
-  assert.deepEqual(delays, [1000, 2000]);
-  assert.equal(statuses.length, 2);
+  assert.deepEqual(delays, [1000]);
+  assert.equal(statuses.length, 1);
 });
 
 test("timeouts exhaust bounded retries; reverts and wallet rejection are not retried", async () => {
@@ -19,7 +19,7 @@ test("timeouts exhaust bounded retries; reverts and wallet rejection are not ret
     let calls = 0;
     await assert.rejects(retryRpc(async () => { calls++; throw Object.assign(new Error(code), { code }); },
       { sleep: async () => {} }));
-    assert.equal(calls, code === "TIMEOUT" ? 4 : 1);
+    assert.equal(calls, code === "TIMEOUT" ? 2 : 1);
   }
 });
 

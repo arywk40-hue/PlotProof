@@ -15,7 +15,7 @@ export default function DashboardPage() {
     setError(null);
     setPlot(null);
     try {
-      const result = await fetchPlot(plotId.trim(), setStatus);
+      const result = await fetchPlot(plotId.trim());
       if (!result.exists) {
         setError("No record found for that hash.");
       } else {

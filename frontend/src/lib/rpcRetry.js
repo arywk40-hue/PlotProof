@@ -8,8 +8,8 @@ export function isTransientRpcError(error) {
     ));
 }
 
-// Only use for reads or waiting on an already broadcast transaction.
-export async function retryRpc(read, { onStatus = () => {}, retries = 3,
+// Only used to wait on an already broadcast transaction: two attempts total.
+export async function retryRpc(read, { onStatus = () => {}, retries = 1,
   sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms)) } = {}) {
   for (let attempt = 0; ; attempt++) {
     try {
@@ -24,9 +24,11 @@ export async function retryRpc(read, { onStatus = () => {}, retries = 3,
 }
 
 export async function waitForConfirmation(tx, onStatus = () => {}) {
-  onStatus("Transaction sent. Waiting for confirmation…");
   try {
-    const receipt = await retryRpc(() => tx.wait(1, 180000), { onStatus, retries: 1 });
+    const receipt = await retryRpc(() => {
+      onStatus("Confirming transaction…");
+      return tx.wait(1, 180000);
+    }, { onStatus });
     if (!receipt) throw new Error("Confirmation unavailable");
     return receipt;
   } catch (error) {

@@ -100,10 +100,17 @@ backend URL, and rebuild the frontend. Before the demo, open
 `https://YOUR-BACKEND/health`. A 200 response confirms the process is awake;
 it does not test Pinata or database readiness.
 
-RPC reads retry transient rate-limit/timeouts three times (1s, 2s, 4s).
-Confirmation waits up to three minutes per attempt, with one transient retry.
+Set `VITE_SEPOLIA_RPC_URL` in Vercel to your Alchemy Ethereum Sepolia HTTPS URL
+(`https://eth-sepolia.g.alchemy.com/v2/YOUR_API_KEY`), then redeploy.
+The existing JSON-RPC provider uses this URL; no Alchemy SDK is required.
+Reads have a 20-second request timeout and no application-level retry.
+Confirmation waits up to three minutes per attempt, with one transient retry
+after a one-second backoff (two attempts total).
 The UI displays retry progress and preserves the transaction hash on failure.
-Only reads/confirmation are retried; sending a transaction is attempted once.
+Only confirmation is retried; sending a transaction is attempted once.
+Wallet signing and transaction confirmation use the connected wallet's provider.
+Changing this Vite variable configures app reads; it does not replace an existing
+Sepolia RPC configuration inside MetaMask.
 
 ## Container deployment
 

@@ -1,6 +1,6 @@
 import { ethers } from "ethers";
 import { CONTRACT_ADDRESS, CONTRACT_ABI, SEPOLIA_CHAIN } from "./config.js";
-import { retryRpc, waitForConfirmation } from "./rpcRetry.js";
+import { waitForConfirmation } from "./rpcRetry.js";
 
 export async function connectWallet() {
   if (!window.ethereum) {
@@ -42,11 +42,11 @@ export async function submitPlotOnChain(signer, photoHash, lat, lon,ipfsCID, onS
   return receipt;
 }
 
-export async function fetchPlot(photoHash, onStatus) {
+export async function fetchPlot(photoHash) {
   const contract = getReadOnlyContract();
   let result;
   try {
-    result = await retryRpc(() => contract.getPlot(photoHash), { onStatus });
+    result = await contract.getPlot(photoHash);
   } finally {
     contract.runner.destroy();
   }
